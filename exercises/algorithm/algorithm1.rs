@@ -2,8 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
-
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
@@ -23,19 +21,19 @@ impl<T> Node<T> {
     }
 }
 #[derive(Debug)]
-struct LinkedList<T> {
+struct LinkedList<T: Clone + std::cmp::PartialOrd> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Clone + std::cmp::PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Clone + std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,20 +67,37 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(mut list_a:LinkedList<T>, mut list_b:LinkedList<T>) -> Self {
+        let mut ans = LinkedList::default();
+        let (mut i, mut j) = (0_i32, 0_i32);
+        while (i as u32) < list_a.length && (j as u32) < list_b.length {
+            let (value_i, value_j) = (list_a.get(i).unwrap(), list_b.get(j).unwrap());
+            if *value_i < *value_j {
+                ans.add(value_i.clone());
+                i += 1;
+            } else {
+                ans.add(value_j.clone());
+                j += 1;
+            }
         }
+
+        while (i as u32) < list_a.length {
+            ans.add((list_a.get(i).unwrap()).clone());
+            i += 1;
+        }
+
+        while (j as u32) < list_b.length {
+            ans.add((list_b.get(j).unwrap()).clone());
+            j += 1;
+        }
+
+        ans
 	}
 }
 
 impl<T> Display for LinkedList<T>
 where
-    T: Display,
+    T: Display + std::cmp::PartialOrd + std::clone::Clone,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.start {

@@ -3,11 +3,51 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+use std::mem::swap;
+
+fn sort<T: std::cmp::PartialOrd + Clone + std::fmt::Debug>(array: &mut [T]) {
+    quick_sort(array);
+    println!("{:?}", array);
 }
+
+fn quick_sort<T: std::cmp::PartialOrd + Clone + std::fmt::Debug>(arr: &mut [T]) {
+    println!("{:?}", arr);
+
+    if arr.len() <= 1 {
+        return;
+    }
+
+    let pivotpos = partition(arr);
+    println!(
+        "POS: {}", pivotpos
+    );
+    quick_sort(&mut arr[..pivotpos]);
+    quick_sort(&mut arr[pivotpos + 1..]);
+}
+
+fn partition<T: std::cmp::PartialOrd + Clone>(array: &mut [T]) -> usize {
+    let pivot = array[0].clone();
+
+    let (mut l, mut r) = (0_usize, array.len() - 1);
+
+    loop {
+        while array[r] > pivot {
+            r -= 1;
+        }
+        while array[l] < pivot {
+            l += 1;
+        }
+
+        array.swap(l, r);
+
+        if l >= r {
+            return r
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

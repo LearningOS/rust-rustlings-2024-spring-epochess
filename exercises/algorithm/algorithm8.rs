@@ -51,31 +51,58 @@ impl<T> Default for Queue<T> {
         }
     }
 }
+#[derive(Debug)]
+enum Status {
+    Push,
+    Pop,
+}
 
-pub struct myStack<T>
-{
+pub struct myStack<T> {
 	//TODO
+    status: Status,
 	q1:Queue<T>,
 	q2:Queue<T>
 }
-impl<T> myStack<T> {
+impl<T: std::fmt::Debug> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
+            status: Status::Push,
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
     }
+
+    fn fill_in(q1: &mut Queue<T>, q2: &mut Queue<T>) {
+        while !q1.is_empty() {
+            let v = q1.dequeue().unwrap();
+            q2.enqueue(v);
+        }
+    }
+
     pub fn push(&mut self, elem: T) {
-        //TODO
+        if let Status::Pop = self.status {
+            Self::fill_in(&mut self.q2, &mut self.q1);
+            self.status = Status::Push;
+        }
+        self.q1.enqueue(elem);
     }
+
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        println!("q1: {:?}\tq2: {:?}\t{:?}", self.q1, self.q2, self.status);
+        if self.is_empty() {
+            return Err("Stack is empty")
+        }
+
+        if let Status::Push = self.status {
+            Self::fill_in(&mut self.q1, &mut self.q2);
+            self.status = Status::Pop;
+        }
+        self.q2.dequeue()
     }
+
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+        self.q1.is_empty() && self.q2.is_empty()
     }
 }
 
