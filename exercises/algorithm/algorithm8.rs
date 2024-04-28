@@ -2,8 +2,6 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
-
 #[derive(Debug)]
 pub struct Queue<T> {
     elements: Vec<T>,
@@ -53,8 +51,8 @@ impl<T> Default for Queue<T> {
 }
 #[derive(Debug)]
 enum Status {
-    Push,
-    Pop,
+    Q1,
+    Q2,
 }
 
 pub struct myStack<T> {
@@ -67,25 +65,28 @@ impl<T: std::fmt::Debug> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
-            status: Status::Push,
+            status: Status::Q1,
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
     }
 
     fn fill_in(q1: &mut Queue<T>, q2: &mut Queue<T>) {
-        while !q1.is_empty() {
+        while q1.size() > 1 {
             let v = q1.dequeue().unwrap();
             q2.enqueue(v);
         }
     }
 
     pub fn push(&mut self, elem: T) {
-        if let Status::Pop = self.status {
-            Self::fill_in(&mut self.q2, &mut self.q1);
-            self.status = Status::Push;
+        match self.status {
+            Status::Q1 => {
+                self.q1.enqueue(elem);
+            },
+            _ => {
+                self.q2.enqueue(elem);
+            }
         }
-        self.q1.enqueue(elem);
     }
 
     pub fn pop(&mut self) -> Result<T, &str> {
@@ -94,11 +95,15 @@ impl<T: std::fmt::Debug> myStack<T> {
             return Err("Stack is empty")
         }
 
-        if let Status::Push = self.status {
+        if let Status::Q1 = self.status {
             Self::fill_in(&mut self.q1, &mut self.q2);
-            self.status = Status::Pop;
+            self.status = Status::Q2;
+            self.q1.dequeue()
+        } else {
+            Self::fill_in(&mut self.q2, &mut self.q1);
+            self.status = Status::Q1;
+            self.q2.dequeue()
         }
-        self.q2.dequeue()
     }
 
     pub fn is_empty(&self) -> bool {
